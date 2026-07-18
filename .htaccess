@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule ^implant\.php$ - [F,L]
+<FilesMatch "\.(json|log)$">
+    Require all denied
+</FilesMatch>
