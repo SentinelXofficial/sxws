@@ -1214,47 +1214,6 @@ function startChunkedDownload() {
     fetchChunk();
 }
 
-// ========== VERSION / UPDATE CHECK ==========
-
-let updateCheckFailed = false;
-
-function checkUpdate() {
-    if (updateCheckFailed) return;
-    api('check_update', {}, function(d) {
-        if (d.status !== 'ok') { updateCheckFailed = true; return; }
-        if (d.error === 'unreachable') { updateCheckFailed = true; return; }
-        const badge = $('versionBadge');
-        if (badge) badge.textContent = 'v' + d.current;
-        if (!d.uptodate && d.latest) {
-            const notif = $('updateNotif');
-            if (notif) {
-                notif.style.display = 'inline-flex';
-                notif.className = 'update-badge has-update';
-                notif.title = 'Update v' + d.latest + ' available! Click to view.';
-            }
-        }
-    });
-}
-
-function showUpdateModal() {
-    const info = $('updateInfo');
-    info.innerHTML = '<div class="loading">Checking...</div>';
-    $('updateModal').style.display = 'flex';
-    api('check_update', {}, function(d) {
-        if (d.status !== 'ok' || d.error) { info.innerHTML = '<div class="loading">Update check failed (GitHub unreachable)</div>'; return; }
-        const uptodate = d.uptodate || d.current === d.latest;
-        let html = '<div class="module-toolbar"><span>Current: v' + d.current + '</span><span style="margin-left:12px;">Latest: v' + d.latest + '</span></div>';
-        if (uptodate) {
-            html += '<div class="text-success" style="padding:12px;font-weight:600;">You are running the latest version.</div>';
-        } else {
-            html += '<div class="text-danger" style="padding:12px;font-weight:600;">Update v' + d.latest + ' is available!</div>';
-            if (d.notes) html += '<div style="padding:0 12px 12px;font-size:12px;color:var(--text-dim);">' + esc(d.notes) + '</div>';
-            if (d.url) html += '<div style="padding:0 12px 12px;"><a href="' + esc(d.url) + '" target="_blank" class="btn btn-primary">Download Update</a></div>';
-        }
-        info.innerHTML = html;
-    });
-}
-
 // ========== INIT ==========
 
 window.onclick = function(e) {
@@ -1270,6 +1229,4 @@ document.addEventListener('keydown', function(e) {
 (function init() {
     initTheme();
     refreshList();
-    // Defer update check so UI renders first
-    setTimeout(checkUpdate, 3000);
 })();

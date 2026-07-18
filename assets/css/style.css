@@ -98,48 +98,6 @@ body {
     -webkit-text-fill-color: var(--text-dim);
 }
 
-.version-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: var(--accent-dim);
-    color: var(--accent);
-    margin-left: 8px;
-    letter-spacing: 0.3px;
-    -webkit-text-fill-color: var(--accent);
-}
-
-.update-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    animation: pulse 2s infinite;
-}
-
-.update-badge.has-update {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.update-badge.has-update::before {
-    content: "!";
-    font-weight: 800;
-    font-size: 12px;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
 .nav-actions {
     display: flex;
     align-items: center;
