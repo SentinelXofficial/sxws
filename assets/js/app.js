@@ -1216,9 +1216,13 @@ function startChunkedDownload() {
 
 // ========== VERSION / UPDATE CHECK ==========
 
+let updateCheckFailed = false;
+
 function checkUpdate() {
+    if (updateCheckFailed) return;
     api('check_update', {}, function(d) {
-        if (d.status !== 'ok') return;
+        if (d.status !== 'ok') { updateCheckFailed = true; return; }
+        if (d.error === 'unreachable') { updateCheckFailed = true; return; }
         const badge = $('versionBadge');
         if (badge) badge.textContent = 'v' + d.current;
         if (!d.uptodate && d.latest) {
@@ -1226,15 +1230,18 @@ function checkUpdate() {
             if (notif) {
                 notif.style.display = 'inline-flex';
                 notif.className = 'update-badge has-update';
-                notif.title = 'Update v' + d.latest + ' available!';
+                notif.title = 'Update v' + d.latest + ' available! Click to view.';
             }
         }
     });
 }
 
 function showUpdateModal() {
+    const info = $('updateInfo');
+    info.innerHTML = '<div class="loading">Checking...</div>';
+    $('updateModal').style.display = 'flex';
     api('check_update', {}, function(d) {
-        if (d.status !== 'ok') { $('updateInfo').innerHTML = '<div class="loading">Check failed</div>'; return; }
+        if (d.status !== 'ok' || d.error) { info.innerHTML = '<div class="loading">Update check failed (GitHub unreachable)</div>'; return; }
         const uptodate = d.uptodate || d.current === d.latest;
         let html = '<div class="module-toolbar"><span>Current: v' + d.current + '</span><span style="margin-left:12px;">Latest: v' + d.latest + '</span></div>';
         if (uptodate) {
@@ -1244,9 +1251,8 @@ function showUpdateModal() {
             if (d.notes) html += '<div style="padding:0 12px 12px;font-size:12px;color:var(--text-dim);">' + esc(d.notes) + '</div>';
             if (d.url) html += '<div style="padding:0 12px 12px;"><a href="' + esc(d.url) + '" target="_blank" class="btn btn-primary">Download Update</a></div>';
         }
-        $('updateInfo').innerHTML = html;
+        info.innerHTML = html;
     });
-    $('updateModal').style.display = 'flex';
 }
 
 // ========== INIT ==========
@@ -1264,7 +1270,6 @@ document.addEventListener('keydown', function(e) {
 (function init() {
     initTheme();
     refreshList();
-    checkUpdate();
-    // Check for updates every 30 min
-    setInterval(checkUpdate, 1800000);
+    // Defer update check so UI renders first
+    setTimeout(checkUpdate, 3000);
 })();

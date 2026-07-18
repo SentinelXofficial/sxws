@@ -500,14 +500,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             curl_setopt_array($ch, [
                 CURLOPT_URL => UPDATE_CHECK_URL,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 10,
+                CURLOPT_TIMEOUT => 3,
+                CURLOPT_CONNECTTIMEOUT => 3,
                 CURLOPT_SSL_VERIFYPEER => false,
             ]);
             $resp = curl_exec($ch);
             $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             if ($http !== 200 || !$resp) {
-                echo json_encode(['status' => 'ok', 'current' => SENTINELX_VERSION, 'latest' => SENTINELX_VERSION, 'uptodate' => true, 'url' => '', 'notes' => '']);
+                echo json_encode([
+                    'status' => 'ok', 'current' => SENTINELX_VERSION,
+                    'latest' => SENTINELX_VERSION, 'uptodate' => true,
+                    'url' => '', 'notes' => '', 'error' => 'unreachable'
+                ]);
                 break;
             }
             $remote = json_decode($resp, true);
