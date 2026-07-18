@@ -258,6 +258,10 @@ cp config/config.php.bak config/config.php
 
 Your implants registry (`config/implants.json`) and logs (`logs/actions.log`) are preserved during updates.
 
+## Disclaimer
+
+This tool is provided for educational purposes and authorized security testing only. Unauthorized access to computer systems is illegal. The authors assume no liability and are not responsible for any misuse or damage caused by this program. By using this software, you agree to use it only on systems you own or have explicit written permission to test.
+
 ## Version
 
 Current: v1.0.0
